@@ -90,6 +90,7 @@ body{
     object-fit: cover;
 }
 
+
 .info{
     padding: 2rem 1rem 1rem;
 }
@@ -103,4 +104,65 @@ body{
     justify-content: space-between;
     margin: 0.2rem;
     font-size: 0.8rem;
+}
+
+.popupcontainer{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 1)),
+    url(https://unsplash.it/1600/900);
+    display: flex;
+    top:0;
+    background-size: cover;
+    background-position: center;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    padding: 3rem;
+    overflow-y: scroll;
+    border: 3px red solid;
+    transform: scale(0);
+}
+
+.content{
+    display: flex;
+    align-items: flex-start;
+    gap: 3rem;
+    width: 1200px;
+    margin-left: 10rem;
+    border: 3px blue solid;
+}
+
+.content .left .single-info{
+    font-size: 2rem;
+    cursor: pointer;
+    user-select: none;
+}
+.content .left .single-info .heart-icon:hover{
+    transform: scale(1.1);
+}
+.content .left .single-info .heart-icon:active{
+    transform: scale(0.9);
+}
+
+.poster-img{
+    width: 300px;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 0.5rem rgba(255, 0, 0, 1);
+    border: 1px solid rgba(255, 0, 0, 1);
+}
+
+.poster-img img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.single-info-container{
+    width: 200px;
+}
+.show_pop_up{
+    transform: scale(1);
 }

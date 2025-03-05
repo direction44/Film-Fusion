@@ -4,6 +4,7 @@ let input=document.querySelector(".search input")
 let button=document.querySelector(".search button")
 const mainGridTitle=document.querySelector(".movies-container h1")
 const mainGrid=document.querySelector(".movies-container .movies-grid")
+const popupcontainer=document.querySelector(".popupcontainer")
 console.log(input);
 console.log(button);
 
@@ -37,7 +38,39 @@ return ` <div class="card" data-id=${movie.id}>
 
             })
 mainGrid.innerHTML=resultsArr.join(" ")
+const cards=document.querySelectorAll(".card")
+addClickEffectToCard(cards)
 }
+
+function addClickEffectToCard(cards){
+    cards.forEach(card => {
+        card.addEventListener("click",()=>{
+            showPopUp(card)
+        }) 
+    });
+}
+
+async function getMovieDetails(movieID){
+    const response = await fetch(`https:api.themoviedb.org/3/movie/${movieID}?api_key=${API_KEY}`);
+    const data=await response.json()
+    console.log(data,"datadata")
+    return data
+}
+async function getMovieDetails(movieID){
+    const response = await fetch(`https:api.themoviedb.org/3/movie/${movieID}?api_key=${API_KEY}`);
+    const data=await response.json()
+    console.log(data,"datadata")
+    return data
+}
+
+async function showPopUp(card){
+    console.log("clicked POPUP",card)
+    popupcontainer.classList.add("show_pop_up")
+    let movieID=card.getAttribute("data-id")
+    console.log(movieID,"movieIDmovieID")
+    const movieData=await getMovieDetails(movieID)
+}
+
 
 
 button.addEventListener("click",addSearchMoviesToDOM)
