@@ -10,9 +10,9 @@ console.log(input);
 console.log(button);
 
 async function getMovieBySearch(search_term){
-let resp=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${search_term}`)
-let respData=await resp.json()
-return respData.results
+ let resp=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${search_term}`)
+ let respData=await resp.json()
+ return respData.results
 }
 
 async function addSearchMoviesToDOM(){
@@ -20,7 +20,7 @@ const searchText=input.value
 const data=await getMovieBySearch(searchText)
 mainGridTitle.innerText="Search Result...."
 const resultsArr=data.map((movie)=>{
-return ` <div class="card" data-id=${movie.id}>
+return `<div class="card" data-id=${movie.id}>
                     <div class="img">
                         <img src=${image_Path+movie.poster_path} alt="">
                     </div>
@@ -35,9 +35,8 @@ return ` <div class="card" data-id=${movie.id}>
                             <span class="rating">${movie.release_date}</span>
                         </div>
                     </div>
-                </div>`
-
-            })
+        </div>`
+     })
 mainGrid.innerHTML=resultsArr.join(" ")
 const cards=document.querySelectorAll(".card")
 addClickEffectToCard(cards)
@@ -48,7 +47,7 @@ function addClickEffectToCard(cards){
         card.addEventListener("click",()=>{
             showPopUp(card)
         }) 
-    });
+  });
 }
 
 async function getMovieDetails(movieID){
@@ -68,6 +67,7 @@ async function showPopUp(card){
     popupcontainer.classList.add("show_pop_up")
     let movieID=card.getAttribute("data-id")
     const movieData=await getMovieDetails(movieID)
+    console.log(movieData,"movieData")
     const movieTrailer=await getMovieTrailer(movieID)
     popupcontainer.style.background=`linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1)),
     url(${image_Path+movieData.poster_path})`
@@ -132,39 +132,60 @@ async function showPopUp(card){
                 </div>
               </div>
         </div>`
-        let xIcon=document.querySelector(".x-icon")
-        xIcon.addEventListener("click",()=>{
+    let xIcon=document.querySelector(".x-icon")
+    xIcon.addEventListener("click",()=>{
             popupcontainer.classList.remove("show_pop_up")
         })
-        let heartIcon=document.querySelector(".heart-icon")
-         heartIcon.addEventListener("click",()=>{
+    let heartIcon=document.querySelector(".heart-icon")
+    let moviesArr = JSON.parse(localStorage.getItem("movieIdIs"));
+    console.log(moviesArr,"ADIiiiii")
+    if(moviesArr)
+    {
+      moviesArr.forEach((maovieIs)=>{
+          console.log(movieID,maovieIs.id,"maovieIs.id")
+          if(maovieIs.id==movieID){
+             heartIcon.classList.add("change-color")
+          }
+         }) 
+    }
+      heartIcon.addEventListener("click",()=>{
             if(heartIcon.classList.contains("change-color"))
             {
                 heartIcon.classList.remove("change-color")
             }
             else{
-                heartIcon.classList.add("change-color")
+            let moviesArr = JSON.parse(localStorage.getItem("movieIdIs")) || [];
+            console.log(moviesArr, "moviesArrmoviesArr");
+            if (!Array.isArray(moviesArr)) {
+                moviesArr = [];
             }
-         })
+            if (!moviesArr.some(movie => movie.id === movieData.id)) {
+                moviesArr.push(movieData);
+            }
 
+            localStorage.setItem("movieIdIs", JSON.stringify(moviesArr));
+            heartIcon.classList.add("change-color")
+            }
+       })       
+           
 }
 
 
 button.addEventListener("click",addSearchMoviesToDOM)
 
-async function getTrendingMovies(params) {
+async function getTrendingMovies() {
     let response=await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}`)
     let respData=await response.json()
     return respData.results
 }
 
 
-async function trendingMoviesToDOM(params) {
+async function trendingMoviesToDOM() {
     const data=await getTrendingMovies()
     const displayMovies=data.slice(0,5)
     console.log(displayMovies)
     const resultsArr=displayMovies.map((movie)=>{
-        return ` <div class="card" data-id=${movie.id}>
+        return `<div class="card" data-id=${movie.id}>
                             <div class="img">
                                 <img src=${image_Path+movie.poster_path} alt="">
                             </div>
@@ -179,13 +200,43 @@ async function trendingMoviesToDOM(params) {
                                     <span class="rating">${movie.release_date}</span>
                                 </div>
                             </div>
-                        </div>`
-        
-                    })
-        trendingGrid.innerHTML=resultsArr.join(" ")
-        const cards=document.querySelectorAll(".card")
-        addClickEffectToCard(cards)
+                </div>`
+          })
+trendingGrid.innerHTML=resultsArr.join(" ")
+const cards=document.querySelectorAll(".card")
+addClickEffectToCard(cards)
 }
 
-// trendingMoviesToDOM()
-window.onload=trendingMoviesToDOM
+async function setFavMoviesInDOM(){
+  let allFavmoviesArr = JSON.parse(localStorage.getItem("movieIdIs"));
+  console.log(allFavmoviesArr)
+  if(allFavmoviesArr){
+    const resultsArr=allFavmoviesArr.map((movie)=>{
+    return `<div class="card" data-id=${movie.id}>
+                        <div class="img">
+                            <img src=${image_Path+movie.poster_path} alt="">
+                        </div>
+                        <div class="info">
+                            <h2>${movie.title}</h2>
+                            <div class="single-info">
+                                <span class="rating">Rating:</span>
+                                <span class="rating">${movie.vote_average}/10</span>
+                            </div>
+                            <div class="single-info">
+                                <span class="rating">Release Date:</span>
+                                <span class="rating">${movie.release_date}</span>
+                            </div>
+                        </div>
+            </div>`
+         })
+         mainGrid.innerHTML=resultsArr.join(" ")
+         const cards=document.querySelectorAll(".card")
+         addClickEffectToCard(cards)
+         
+  }
+}
+
+window.onload=()=>{
+  trendingMoviesToDOM()
+  setFavMoviesInDOM()
+}
