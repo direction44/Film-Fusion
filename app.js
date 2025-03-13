@@ -6,8 +6,6 @@ const mainGridTitle=document.querySelector(".Favourites h1")
 const mainGrid=document.querySelector(".Favourites .movies-grid")
 const trendingGrid=document.querySelector(".Tranding .movies-grid")
 const popupcontainer=document.querySelector(".popupcontainer")
-console.log(input);
-console.log(button);
 
 async function getMovieBySearch(search_term){
  let resp=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${search_term}`)
@@ -53,13 +51,11 @@ function addClickEffectToCard(cards){
 async function getMovieDetails(movieID){
     const response = await fetch(`https:api.themoviedb.org/3/movie/${movieID}?api_key=${API_KEY}`);
     const data=await response.json()
-    console.log(data,"datadata")
     return data
 }
 async function getMovieTrailer(movieID){
     const response = await fetch(`https://api.themoviedb.org/3/movie/${movieID}/videos?api_key=${API_KEY}`);
     const data=await response.json()
-    console.log(data,"Trailer")
     return data.results[0].key
 }
 
@@ -67,7 +63,6 @@ async function showPopUp(card){
     popupcontainer.classList.add("show_pop_up")
     let movieID=card.getAttribute("data-id")
     const movieData=await getMovieDetails(movieID)
-    console.log(movieData,"movieData")
     const movieTrailer=await getMovieTrailer(movieID)
     popupcontainer.style.background=`linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1)),
     url(${image_Path+movieData.poster_path})`
@@ -135,38 +130,40 @@ async function showPopUp(card){
     let xIcon=document.querySelector(".x-icon")
     xIcon.addEventListener("click",()=>{
             popupcontainer.classList.remove("show_pop_up")
-        })
+            setFavMoviesInDOM()
+    })
     let heartIcon=document.querySelector(".heart-icon")
     let moviesArr = JSON.parse(localStorage.getItem("movieIdIs"));
-    console.log(moviesArr,"ADIiiiii")
     if(moviesArr)
     {
-      moviesArr.forEach((maovieIs)=>{
-          console.log(movieID,maovieIs.id,"maovieIs.id")
-          if(maovieIs.id==movieID){
-             heartIcon.classList.add("change-color")
-          }
-         }) 
+        moviesArr.forEach((maovieIs)=>{
+            if(maovieIs.id==movieID){
+               heartIcon.classList.add("change-color")
+            }
+        }) 
     }
-      heartIcon.addEventListener("click",()=>{
-            if(heartIcon.classList.contains("change-color"))
-            {
-                heartIcon.classList.remove("change-color")
-            }
-            else{
-            let moviesArr = JSON.parse(localStorage.getItem("movieIdIs")) || [];
-            console.log(moviesArr, "moviesArrmoviesArr");
-            if (!Array.isArray(moviesArr)) {
-                moviesArr = [];
-            }
-            if (!moviesArr.some(movie => movie.id === movieData.id)) {
-                moviesArr.push(movieData);
-            }
-
-            localStorage.setItem("movieIdIs", JSON.stringify(moviesArr));
-            heartIcon.classList.add("change-color")
-            }
-       })       
+    heartIcon.addEventListener("click",()=>{
+          if(heartIcon.classList.contains("change-color"))
+          {
+              let moviesAll = JSON.parse(localStorage.getItem("movieIdIs"))
+              let remainMovies=moviesAll.filter((movies)=>
+                movies.id!=movieData.id
+              )
+              localStorage.setItem("movieIdIs",JSON.stringify(remainMovies))
+              heartIcon.classList.remove("change-color")
+          }
+          else{
+              let moviesArr = JSON.parse(localStorage.getItem("movieIdIs")) || [];
+              if (!Array.isArray(moviesArr)) {
+                  moviesArr = [];
+              }
+              if (!moviesArr.some(movie => movie.id === movieData.id)) {
+                  moviesArr.push(movieData);
+              }
+              localStorage.setItem("movieIdIs", JSON.stringify(moviesArr));
+              heartIcon.classList.add("change-color")
+          }
+    })       
            
 }
 
@@ -183,9 +180,8 @@ async function getTrendingMovies() {
 async function trendingMoviesToDOM() {
     const data=await getTrendingMovies()
     const displayMovies=data.slice(0,5)
-    console.log(displayMovies)
     const resultsArr=displayMovies.map((movie)=>{
-        return `<div class="card" data-id=${movie.id}>
+          return `<div class="card" data-id=${movie.id}>
                             <div class="img">
                                 <img src=${image_Path+movie.poster_path} alt="">
                             </div>
@@ -201,7 +197,7 @@ async function trendingMoviesToDOM() {
                                 </div>
                             </div>
                 </div>`
-          })
+    })
 trendingGrid.innerHTML=resultsArr.join(" ")
 const cards=document.querySelectorAll(".card")
 addClickEffectToCard(cards)
@@ -209,10 +205,9 @@ addClickEffectToCard(cards)
 
 async function setFavMoviesInDOM(){
   let allFavmoviesArr = JSON.parse(localStorage.getItem("movieIdIs"));
-  console.log(allFavmoviesArr)
   if(allFavmoviesArr){
     const resultsArr=allFavmoviesArr.map((movie)=>{
-    return `<div class="card" data-id=${movie.id}>
+        return `<div class="card" data-id=${movie.id}>
                         <div class="img">
                             <img src=${image_Path+movie.poster_path} alt="">
                         </div>
@@ -228,11 +223,10 @@ async function setFavMoviesInDOM(){
                             </div>
                         </div>
             </div>`
-         })
-         mainGrid.innerHTML=resultsArr.join(" ")
-         const cards=document.querySelectorAll(".card")
-         addClickEffectToCard(cards)
-         
+        })
+        mainGrid.innerHTML=resultsArr.join(" ")
+        const cards=document.querySelectorAll(".card")
+        addClickEffectToCard(cards)  
   }
 }
 
